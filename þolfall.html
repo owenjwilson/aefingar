@@ -1,0 +1,589 @@
+
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Þolfall</title>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    margin-bottom: 5px;
+  }
+
+  header p {
+    margin-bottom: 10px;
+    color: #555;
+  }
+
+ 
+
+  .word-main {
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .gender-badge {
+    font-size: 14px;
+    margin-left: 8px;
+    color: #555;
+  }
+
+  .word-en {
+    margin-bottom: 15px;
+    color: #666;
+    font-style: italic;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+  }
+
+  td:first-child {
+    text-align: left;
+    font-weight: bold;
+    color: #555;
+  }
+
+  input {
+    width: 100%;
+    padding: 6px;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+
+  .correct { background-color: #c8f7c5; }
+  .incorrect { background-color: #f7c5c5; }
+  .shown { background-color: #e0e0ff; }
+
+  .pre-filled {
+    display: block;
+    padding: 6px;
+  }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+button,
+.home-btn {
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+
+  color: black;
+  text-decoration: none;
+
+  display: inline-block;
+}
+
+button:hover,
+.home-btn:hover {
+  background: #e8e8e8;
+}
+
+  .counter {
+    margin-top: 10px;
+    text-align: right;
+    color: #555;
+  }
+
+  @media (max-width: 480px) {
+    table, thead, tbody, th, td, tr {
+      display: block;
+    }
+
+    thead {
+      display: none;
+    }
+
+    tr {
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+
+    td {
+      border: none;
+      text-align: left;
+      padding: 4px 0;
+    }
+  }
+</style>
+ </head>
+<body>
+<a href="https://owenjwilson.github.io/aefingar/home.html" class="home-btn">
+  &#8592; Heim
+</a>
+
+<div class="container">
+  <header>
+    <h1>Þolfall</h1>
+    <p>án greinis og með greini</p>
+  </div>
+  </header>
+  <div id="app"></div>
+</div>
+
+<script>
+const words = [
+  { is: "aðalréttur", gender: "m", en: "main course",
+    nef_an: "aðalréttur", nef_med: "aðalrétturinn",
+    tho_an: "aðalrétt",   tho_med: "aðalréttinn" },
+  { is: "aðgangskort", gender: "n", en: "access card",
+    nef_an: "aðgangskort", nef_med: "aðgangskortið",
+    tho_an: "aðgangskort", tho_med: "aðgangskortið" },
+  { is: "aðgangur", gender: "m", en: "access",
+    nef_an: "aðgangur", nef_med: "aðgangurinn",
+    tho_an: "aðgang",   tho_med: "aðganginn" },
+  { is: "afgreiðslukona", gender: "f", en: "female shop assistant",
+    nef_an: "afgreiðslukona", nef_med: "afgreiðslukonan",
+    tho_an: "afgreiðslukonu", tho_med: "afgreiðslukonuna" },
+  { is: "afi", gender: "m", en: "grandfather",
+    nef_an: "afi", nef_med: "afinn",
+    tho_an: "afa", tho_med: "afann" },
+  { is: "afmæli", gender: "n", en: "birthday",
+    nef_an: "afmæli", nef_med: "afmælið",
+    tho_an: "afmæli", tho_med: "afmælið" },
+  { is: "afmæliskaka", gender: "f", en: "birthday cake",
+    nef_an: "afmæliskaka", nef_med: "afmæliskakan",
+    tho_an: "afmælisköku", tho_med: "afmæliskökuna" },
+  { is: "afmælissöngur", gender: "m", en: "birthday song",
+    nef_an: "afmælissöngur", nef_med: "afmælissöngurinn",
+    tho_an: "afmælissöng",   tho_med: "afmælissönginn" },
+  { is: "afmælisveisla", gender: "f", en: "birthday party",
+    nef_an: "afmælisveisla", nef_med: "afmælisveislan",
+    tho_an: "afmælisveislu", tho_med: "afmælisveisluna" },
+  { is: "áhugi", gender: "m", en: "interest",
+    nef_an: "áhugi", nef_med: "áhuginn",
+    tho_an: "áhuga", tho_med: "áhugann" },
+  { is: "nemandi", gender: "m", en: "student",
+    nef_an: "nemandi", nef_med: "nemandinn",
+    tho_an: "nemanda", tho_med: "nemandann" },
+  { is: "kennari", gender: "m", en: "teacher",
+    nef_an: "kennari", nef_med: "kennarinn",
+    tho_an: "kennara", tho_med: "kennarann" },
+  { is: "læknir", gender: "m", en: "doctor",
+    nef_an: "læknir", nef_med: "læknirinn",
+    tho_an: "lækni",  tho_med: "lækninn" },
+  { is: "hjúkrunarfræðingur", gender: "m", en: "nurse",
+    nef_an: "hjúkrunarfræðingur", nef_med: "hjúkrunarfræðingurinn",
+    tho_an: "hjúkrunarfræðing",   tho_med: "hjúkrunarfræðinginn" },
+  { is: "lögregluþjónn", gender: "m", en: "police officer",
+    nef_an: "lögregluþjónn", nef_med: "lögregluþjónninn",
+    tho_an: "lögregluþjón",  tho_med: "lögregluþjóninn" },
+  { is: "verkfræðingur", gender: "m", en: "engineer",
+    nef_an: "verkfræðingur", nef_med: "verkfræðingurinn",
+    tho_an: "verkfræðing",   tho_med: "verkfræðinginn" },
+  { is: "smiður", gender: "m", en: "carpenter",
+    nef_an: "smiður", nef_med: "smiðurinn",
+    tho_an: "smið",   tho_med: "smiðinn" },
+  { is: "þjónn", gender: "m", en: "waiter",
+    nef_an: "þjónn", nef_med: "þjónninn",
+    tho_an: "þjón",  tho_med: "þjóninn" },
+  { is: "bílstjóri", gender: "m", en: "driver",
+    nef_an: "bílstjóri", nef_med: "bílstjórinn",
+    tho_an: "bílstjóra", tho_med: "bílstjórann" },
+  { is: "bóndi", gender: "m", en: "farmer",
+    nef_an: "bóndi", nef_med: "bóndinn",
+    tho_an: "bónda", tho_med: "bóndann" },
+  { is: "kokkur", gender: "m", en: "chef",
+    nef_an: "kokkur", nef_med: "kokkurinn",
+    tho_an: "kokk",   tho_med: "kokkinn" },
+  { is: "hús", gender: "n", en: "house",
+    nef_an: "hús", nef_med: "húsið",
+    tho_an: "hús", tho_med: "húsið" },
+  { is: "forstofa", gender: "f", en: "entryway",
+    nef_an: "forstofa", nef_med: "forstofan",
+    tho_an: "forstofu", tho_med: "forstofuna" },
+  { is: "gangur", gender: "m", en: "hallway",
+    nef_an: "gangur", nef_med: "gangurinn",
+    tho_an: "gang",   tho_med: "ganginn" },
+  { is: "stofa", gender: "f", en: "living room",
+    nef_an: "stofa", nef_med: "stofan",
+    tho_an: "stofu", tho_med: "stofuna" },
+  { is: "eldhús", gender: "n", en: "kitchen",
+    nef_an: "eldhús", nef_med: "eldhúsið",
+    tho_an: "eldhús", tho_med: "eldhúsið" },
+  { is: "svefnherbergi", gender: "n", en: "bedroom",
+    nef_an: "svefnherbergi", nef_med: "svefnherbergið",
+    tho_an: "svefnherbergi", tho_med: "svefnherbergið" },
+  { is: "skrifstofa", gender: "f", en: "office",
+    nef_an: "skrifstofa", nef_med: "skrifstofan",
+    tho_an: "skrifstofu", tho_med: "skrifstofuna" },
+  { is: "baðherbergi", gender: "n", en: "bathroom",
+    nef_an: "baðherbergi", nef_med: "baðherbergið",
+    tho_an: "baðherbergi", tho_med: "baðherbergið" },
+  { is: "klósett", gender: "n", en: "toilet",
+    nef_an: "klósett", nef_med: "klósettið",
+    tho_an: "klósett", tho_med: "klósettið" },
+  { is: "afsláttur", gender: "m", en: "discount",
+    nef_an: "afsláttur", nef_med: "afslátturinn",
+    tho_an: "afslátt",   tho_med: "afsláttinn" },
+  { is: "karfa", gender: "f", en: "basket",
+    nef_an: "karfa", nef_med: "karfan",
+    tho_an: "körfu", tho_med: "körfuna" },
+  { is: "kerra", gender: "f", en: "cart",
+    nef_an: "kerra", nef_med: "kerran",
+    tho_an: "kerru", tho_med: "kerruna" },
+  { is: "matur", gender: "m", en: "food",
+    nef_an: "matur", nef_med: "maturinn",
+    tho_an: "mat",   tho_med: "matinn" },
+  { is: "fiskur", gender: "m", en: "fish",
+    nef_an: "fiskur", nef_med: "fiskurinn",
+    tho_an: "fisk",   tho_med: "fiskinn" },
+  { is: "kjöt", gender: "n", en: "meat",
+    nef_an: "kjöt", nef_med: "kjötið",
+    tho_an: "kjöt", tho_med: "kjötið" },
+  { is: "grænmeti", gender: "n", en: "vegetables",
+    nef_an: "grænmeti", nef_med: "grænmetið",
+    tho_an: "grænmeti", tho_med: "grænmetið" },
+  { is: "ávöxtur", gender: "m", en: "fruit",
+    nef_an: "ávöxtur", nef_med: "ávöxturinn",
+    tho_an: "ávöxt",   tho_med: "ávöxtinn" },
+  { is: "mjólkurvara", gender: "f", en: "dairy product",
+    nef_an: "mjólkurvara", nef_med: "mjólkurvaran",
+    tho_an: "mjólkurvöru", tho_med: "mjólkurvöruna" },
+  { is: "nammi", gender: "n", en: "candy",
+    nef_an: "nammi", nef_med: "nammið",
+    tho_an: "nammi", tho_med: "nammið" },
+  { is: "epli", gender: "n", en: "apple",
+    nef_an: "epli", nef_med: "eplið",
+    tho_an: "epli", tho_med: "eplið" },
+  { is: "banani", gender: "m", en: "banana",
+    nef_an: "banani", nef_med: "bananinn",
+    tho_an: "banana", tho_med: "bananann" },
+  { is: "pera", gender: "f", en: "pear",
+    nef_an: "pera", nef_med: "peran",
+    tho_an: "peru", tho_med: "peruna" },
+  { is: "appelsína", gender: "f", en: "orange",
+    nef_an: "appelsína", nef_med: "appelsínan",
+    tho_an: "appelsínu", tho_med: "appelsínuna" },
+  { is: "vínber", gender: "n", en: "grapes",
+    nef_an: "vínber", nef_med: "vínberið",
+    tho_an: "vínber", tho_med: "vínberið" },
+  { is: "jarðarber", gender: "n", en: "strawberry",
+    nef_an: "jarðarber", nef_med: "jarðarberið",
+    tho_an: "jarðarber", tho_med: "jarðarberið" },
+  { is: "sítróna", gender: "f", en: "lemon",
+    nef_an: "sítróna", nef_med: "sítrónan",
+    tho_an: "sítrónu", tho_med: "sítrónuna" },
+  { is: "laukur", gender: "m", en: "onion",
+    nef_an: "laukur", nef_med: "laukurinn",
+    tho_an: "lauk",   tho_med: "laukinn" },
+  { is: "gulrót", gender: "f", en: "carrot",
+    nef_an: "gulrót", nef_med: "gulrótin",
+    tho_an: "gulrót", tho_med: "gulrótina" },
+  { is: "baun", gender: "f", en: "bean",
+    nef_an: "baun", nef_med: "baunin",
+    tho_an: "baun", tho_med: "baunina" },
+  { is: "papríka", gender: "f", en: "bell pepper",
+    nef_an: "papríka", nef_med: "papríkan",
+    tho_an: "papríku", tho_med: "papríkuna" },
+  { is: "gúrka", gender: "f", en: "cucumber",
+    nef_an: "gúrka", nef_med: "gúrkan",
+    tho_an: "gúrku", tho_med: "gúrkuna" },
+  { is: "tómatur", gender: "m", en: "tomato",
+    nef_an: "tómatur", nef_med: "tómaturinn",
+    tho_an: "tómat",   tho_med: "tómatinn" },
+  { is: "mjólk", gender: "f", en: "milk",
+    nef_an: "mjólk", nef_med: "mjólkin",
+    tho_an: "mjólk", tho_med: "mjólkina" },
+  { is: "jógúrt", gender: "n", en: "yogurt",
+    nef_an: "jógúrt", nef_med: "jógúrtið",
+    tho_an: "jógúrt", tho_med: "jógúrtið" },
+  { is: "ostur", gender: "m", en: "cheese",
+    nef_an: "ostur", nef_med: "osturinn",
+    tho_an: "ost",   tho_med: "ostinn" },
+  { is: "smjör", gender: "n", en: "butter",
+    nef_an: "smjör", nef_med: "smjörið",
+    tho_an: "smjör", tho_med: "smjörið" },
+  { is: "rjómi", gender: "m", en: "cream",
+    nef_an: "rjómi", nef_med: "rjóminn",
+    tho_an: "rjóma", tho_med: "rjómann" },
+  { is: "ís", gender: "m", en: "ice cream",
+    nef_an: "ís", nef_med: "ísinn",
+    tho_an: "ís", tho_med: "ísinn" },
+  { is: "brauð", gender: "n", en: "bread",
+    nef_an: "brauð", nef_med: "brauðið",
+    tho_an: "brauð", tho_med: "brauðið" },
+  { is: "hrísgrjón", gender: "n", en: "rice",
+    nef_an: "hrísgrjón", nef_med: "hrísgrjónið",
+    tho_an: "hrísgrjón", tho_med: "hrísgrjónið" },
+  { is: "pasta", gender: "n", en: "pasta",
+    nef_an: "pasta", nef_med: "pastað",
+    tho_an: "pasta", tho_med: "pastað" },
+  { is: "hveiti", gender: "n", en: "flour",
+    nef_an: "hveiti", nef_med: "hveitið",
+    tho_an: "hveiti", tho_med: "hveitið" },
+  { is: "olía", gender: "f", en: "oil",
+    nef_an: "olía", nef_med: "olían",
+    tho_an: "olíu", tho_med: "olíuna" },
+  { is: "salt", gender: "n", en: "salt",
+    nef_an: "salt", nef_med: "saltið",
+    tho_an: "salt", tho_med: "saltið" },
+  { is: "sápa", gender: "f", en: "soap",
+    nef_an: "sápa", nef_med: "sápan",
+    tho_an: "sápu", tho_med: "sápuna" },
+  { is: "drykkur", gender: "m", en: "drink",
+    nef_an: "drykkur", nef_med: "drykkurinn",
+    tho_an: "drykk",   tho_med: "drykkinn" },
+  { is: "súpa", gender: "f", en: "soup",
+    nef_an: "súpa", nef_med: "súpan",
+    tho_an: "súpu", tho_med: "súpuna" },
+  { is: "samloka", gender: "f", en: "sandwich",
+    nef_an: "samloka", nef_med: "samlokan",
+    tho_an: "samloku", tho_med: "samlokuna" },
+  { is: "pylsa", gender: "f", en: "hot dog",
+    nef_an: "pylsa", nef_med: "pylsan",
+    tho_an: "pylsu", tho_med: "pylsuna" },
+  { is: "egg", gender: "n", en: "egg",
+    nef_an: "egg", nef_med: "eggið",
+    tho_an: "egg", tho_med: "eggið" },
+  { is: "kaka", gender: "f", en: "cake",
+    nef_an: "kaka", nef_med: "kakan",
+    tho_an: "köku", tho_med: "kökuna" },
+  { is: "te", gender: "n", en: "tea",
+    nef_an: "te", nef_med: "teið",
+    tho_an: "te", tho_med: "teið" },
+  { is: "kaffi", gender: "n", en: "coffee",
+    nef_an: "kaffi", nef_med: "kaffið",
+    tho_an: "kaffi", tho_med: "kaffið" },
+  { is: "safi", gender: "m", en: "juice",
+    nef_an: "safi", nef_med: "safinn",
+    tho_an: "safa", tho_med: "safann" },
+  { is: "pitsa", gender: "f", en: "pizza",
+    nef_an: "pitsa", nef_med: "pitsan",
+    tho_an: "pitsu", tho_med: "pitsuna" },
+  { is: "hamborgari", gender: "m", en: "hamburger",
+    nef_an: "hamborgari", nef_med: "hamborgarinn",
+    tho_an: "hamborgara", tho_med: "hamborgarann" },
+  { is: "kjúklingur", gender: "m", en: "chicken",
+    nef_an: "kjúklingur", nef_med: "kjúklingurinn",
+    tho_an: "kjúkling",   tho_med: "kjúklinginn" },
+  { is: "súkkulaði", gender: "n", en: "chocolate",
+    nef_an: "súkkulaði", nef_med: "súkkulaðið",
+    tho_an: "súkkulaði", tho_med: "súkkulaðið" },
+  { is: "skyrta", gender: "f", en: "shirt",
+    nef_an: "skyrta", nef_med: "skyrtan",
+    tho_an: "skyrtu", tho_med: "skyrtuna" },
+  { is: "kjóll", gender: "m", en: "dress",
+    nef_an: "kjóll", nef_med: "kjóllinn",
+    tho_an: "kjól",  tho_med: "kjólinn" },
+  { is: "peysa", gender: "f", en: "sweater",
+    nef_an: "peysa", nef_med: "peysan",
+    tho_an: "peysu", tho_med: "peysuna" },
+  { is: "úlpa", gender: "f", en: "coat",
+    nef_an: "úlpa", nef_med: "úlpan",
+    tho_an: "úlpu", tho_med: "úlpuna" },
+  { is: "sokkur", gender: "m", en: "sock",
+    nef_an: "sokkur", nef_med: "sokkurinn",
+    tho_an: "sokk",   tho_med: "sokkinn" },
+  { is: "húfa", gender: "f", en: "hat",
+    nef_an: "húfa", nef_med: "húfan",
+    tho_an: "húfu", tho_med: "húfuna" },
+  { is: "hanski", gender: "m", en: "glove",
+    nef_an: "hanski", nef_med: "hanskinn",
+    tho_an: "hanska", tho_med: "hanskann" },
+  { is: "skór", gender: "m", en: "shoe",
+    nef_an: "skór", nef_med: "skórinn",
+    tho_an: "skó",  tho_med: "skóinn" },
+  { is: "belti", gender: "n", en: "belt",
+    nef_an: "belti", nef_med: "beltið",
+    tho_an: "belti", tho_med: "beltið" },
+  { is: "trefill", gender: "m", en: "scarf",
+    nef_an: "trefill", nef_med: "trefillinn",
+    tho_an: "trefil",  tho_med: "trefilinn" },
+  { is: "pils", gender: "n", en: "skirt",
+    nef_an: "pils", nef_med: "pilsið",
+    tho_an: "pils", tho_med: "pilsið" },
+  { is: "bolur", gender: "m", en: "t-shirt",
+    nef_an: "bolur", nef_med: "bolurinn",
+    tho_an: "bol",   tho_med: "bolinn" },
+  { is: "jakki", gender: "m", en: "jacket",
+    nef_an: "jakki", nef_med: "jakkinn",
+    tho_an: "jakka", tho_med: "jakkann" },
+  { is: "bindi", gender: "n", en: "tie",
+    nef_an: "bindi", nef_med: "bindið",
+    tho_an: "bindi", tho_med: "bindið" },
+  { is: "regnkápa", gender: "f", en: "raincoat",
+    nef_an: "regnkápa", nef_med: "regnkápan",
+    tho_an: "regnkápu", tho_med: "regnkápuna" },
+  { is: "bær", gender: "m", en: "town",
+    nef_an: "bær", nef_med: "bærinn",
+    tho_an: "bæ",  tho_med: "bæinn" },
+  { is: "þorp", gender: "n", en: "village",
+    nef_an: "þorp", nef_med: "þorpið",
+    tho_an: "þorp", tho_med: "þorpið" },
+  { is: "bíó", gender: "n", en: "cinema",
+    nef_an: "bíó", nef_med: "bíóið",
+    tho_an: "bíó", tho_med: "bíóið" },
+  { is: "veitingastaður", gender: "m", en: "restaurant",
+    nef_an: "veitingastaður", nef_med: "veitingastaðurinn",
+    tho_an: "veitingastað",   tho_med: "veitingastaðinn" },
+  { is: "búð", gender: "f", en: "shop",
+    nef_an: "búð", nef_med: "búðin",
+    tho_an: "búð", tho_med: "búðina" },
+  { is: "banki", gender: "m", en: "bank",
+    nef_an: "banki", nef_med: "bankinn",
+    tho_an: "banka", tho_med: "bankann" },
+  { is: "skóli", gender: "m", en: "school",
+    nef_an: "skóli", nef_med: "skólinn",
+    tho_an: "skóla", tho_med: "skólann" },
+  { is: "lögreglustöð", gender: "f", en: "police station",
+    nef_an: "lögreglustöð", nef_med: "lögreglustöðin",
+    tho_an: "lögreglustöð",  tho_med: "lögreglustöðina" },
+  { is: "sjúkrahús", gender: "n", en: "hospital",
+    nef_an: "sjúkrahús", nef_med: "sjúkrahúsið",
+    tho_an: "sjúkrahús", tho_med: "sjúkrahúsið" },
+  { is: "apótek", gender: "n", en: "pharmacy",
+    nef_an: "apótek", nef_med: "apótekið",
+    tho_an: "apótek", tho_med: "apótekið" },
+  { is: "kirkja", gender: "f", en: "church",
+    nef_an: "kirkja", nef_med: "kirkjan",
+    tho_an: "kirkju", tho_med: "kirkjuna" },
+  { is: "moska", gender: "f", en: "mosque",
+    nef_an: "moska", nef_med: "moskan",
+    tho_an: "mosku", tho_med: "moskuna" },
+  { is: "flugvöllur", gender: "m", en: "airport",
+    nef_an: "flugvöllur", nef_med: "flugvöllurinn",
+    tho_an: "flugvöll",   tho_med: "flugvöllinn" },
+  { is: "höfn", gender: "f", en: "harbor",
+    nef_an: "höfn", nef_med: "höfnin",
+    tho_an: "höfn", tho_med: "höfnina" },
+  { is: "bókasafn", gender: "n", en: "library",
+    nef_an: "bókasafn", nef_med: "bókasafnið",
+    tho_an: "bókasafn", tho_med: "bókasafnið" },
+  { is: "sundlaug", gender: "f", en: "swimming pool",
+    nef_an: "sundlaug", nef_med: "sundlaugin",
+    tho_an: "sundlaug", tho_med: "sundlaugina" },
+  { is: "garður", gender: "m", en: "park",
+    nef_an: "garður", nef_med: "garðurinn",
+    tho_an: "garð",   tho_med: "garðinn" },
+  { is: "leikvöllur", gender: "m", en: "playground",
+    nef_an: "leikvöllur", nef_med: "leikvöllurinn",
+    tho_an: "leikvöll",   tho_med: "leikvöllinn" },
+  { is: "strönd", gender: "f", en: "beach",
+    nef_an: "strönd", nef_med: "ströndinn",
+    tho_an: "strönd", tho_med: "ströndina" },
+  { is: "háskóli", gender: "m", en: "university",
+    nef_an: "háskóli", nef_med: "háskólinn",
+    tho_an: "háskóla", tho_med: "háskólann" }
+];
+
+for (let i = words.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [words[i], words[j]] = [words[j], words[i]];
+}
+
+let idx = 0;
+
+const genderLabel = { m: "kk", f: "kvk", n: "hvk" };
+const genderClass = { m: "kk", f: "kvk", n: "hvk" };
+
+function render() {
+  const w = words[idx];
+  const pct = Math.round(((idx + 1) / words.length) * 100);
+
+
+  const html = `
+    <div class="card">
+      <div class="word-header">
+        <span class="word-main">${w.is}</span>
+        <span class="gender-badge ${genderClass[w.gender]}">${genderLabel[w.gender]}</span>
+      </div>
+      <div class="word-en">${w.en}</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>án greinis</th>
+            <th>með greini</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>nefnifall</td>
+            <td><span class="pre-filled">${w.nef_an}</span></td>
+            <td><span class="pre-filled">${w.nef_med}</span></td>
+          </tr>
+          <tr>
+            <td>þolfall</td>
+            <td><input type="text" id="tho_an" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="…"></td>
+            <td><input type="text" id="tho_med" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="…"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="btn-row">
+        <button class="btn-check" onclick="check()">Athuga svör</button>
+        <button class="btn-show"  onclick="show()">Sýna svör</button>
+        <button class="btn-nav"   onclick="prev()">← Til baka</button>
+        <button class="btn-nav"   onclick="next()">Áfram →</button>
+      </div>
+    </div>
+    <p class="counter">${idx + 1} / ${words.length}</p>
+  `;
+
+  document.getElementById("app").innerHTML = html;
+  document.getElementById("tho_an").focus();
+}
+
+function check() {
+  const w = words[idx];
+  const fields = [
+    { id: "tho_an",  correct: w.tho_an  },
+    { id: "tho_med", correct: w.tho_med }
+  ];
+  fields.forEach(({ id, correct }) => {
+    const input = document.getElementById(id);
+    const val = input.value.trim().toLowerCase();
+    input.classList.remove("correct", "incorrect", "shown");
+    if (val === correct.toLowerCase()) {
+      input.classList.add("correct");
+    } else if (val !== "") {
+      input.classList.add("incorrect");
+    }
+  });
+}
+
+function show() {
+  const w = words[idx];
+  [["tho_an", w.tho_an], ["tho_med", w.tho_med]].forEach(([id, val]) => {
+    const input = document.getElementById(id);
+    input.value = val;
+    input.classList.remove("correct", "incorrect");
+    input.classList.add("shown");
+  });
+}
+
+function next() { idx = (idx + 1) % words.length; render(); }
+function prev() { idx = (idx - 1 + words.length) % words.length; render(); }
+
+render();
+</script>
+</body>
+</html>
