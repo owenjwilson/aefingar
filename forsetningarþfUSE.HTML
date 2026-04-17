@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forsetningar og þolfall</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 700px;
+        margin: 20px auto;
+        padding: 10px;
+        text-align: left;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    .top-bar {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .sentence {
+        font-size: 18px;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    input {
+        padding: 6px;
+        font-size: 16px;
+        width: 140px;
+        max-width: 40%;
+        text-align: center;
+        border: 2px solid #ccc;
+        border-radius: 6px;
+        transition: 0.2s;
+    }
+
+    .correct {
+        background-color: #c8f7c5;
+        border-color: green;
+    }
+
+    .incorrect {
+        background-color: #f7c5c5;
+        border-color: red;
+    }
+
+    .revealed {
+        background-color: #c5d8f7;
+        border-color: blue;
+    }
+
+    button,
+    .home-btn {
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+
+      color: black;
+      text-decoration: none;
+
+      display: inline-block;
+    }
+
+    button:hover,
+    .home-btn:hover {
+      background: #e8e8e8;
+    }
+
+    .controls {
+        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 500px) {
+        .sentence {
+            font-size: 16px;
+        }
+
+        input {
+            width: 120px;
+            font-size: 15px;
+        }
+
+        button {
+            flex: 1 1 auto;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="top-bar">
+    <a href="https://owenjwilson.github.io/aefingar/home.html" class="home-btn">🏠 Home</a>
+</div>
+
+<h1>Forsetningar og þolfall</h1>
+
+<div class="sentence" id="sentence"></div>
+
+<div class="controls">
+    <button onclick="checkAnswer()">Staðfesta</button>
+    <button onclick="revealAnswer()">Sýna svar</button>
+</div>
+
+<div class="controls">
+    <button onclick="prevQuestion()">⬅ Fyrri</button>
+    <button onclick="nextQuestion()">Næsta ➡</button>
+</div>
+
+<script>
+const places = {
+    "bíóið": "bíóið",
+    "veitingastaðurinn": "veitingastaðinn",
+    "búðin": "búðina",
+    "bankinn": "bankann",
+    "skólinn": "skólann",
+    "lögreglustöðin": "lögreglustöðina",
+    "sjúkrahúsið": "sjúkrahúsið",
+    "spítalinn": "spítalann",
+    "apótekið": "apótekið",
+    "kirkjan": "kirkjuna",
+    "moskan": "moskuna",
+    "flugvöllurinn": "flugvöllinn",
+    "bókasafnið": "bókasafnið",
+    "sundlaugin": "sundlaugina",
+    "garðurinn": "garðinn",
+    "leikvöllurinn": "leikvöllinn",
+    "ströndin": "ströndina",
+    "líkamsræktarstöðin": "líkamsræktarstöðina",
+    "háskólinn": "háskólann",
+    "skemmtistaðurinn": "skemmtistaðinn",
+    "listasafnið": "listasafnið",
+    "hótelið": "hótelið",
+    "kaffihúsið": "kaffihúsið",
+    "hraðbankinn": "hraðbankann",
+    "pósthúsið": "pósthúsið",
+    "bensínstöðin": "bensínstöðina"
+};
+
+const patterns = [
+    "er vinstra megin við",
+    "er hægra megin við",
+    "er fyrir framan",
+    "er fyrir aftan",
+    "er á bak við"
+];
+
+let questions = [];
+let currentIndex = 0;
+
+function generateQuestion() {
+    const keys = Object.keys(places);
+
+    let p1 = keys[Math.floor(Math.random() * keys.length)];
+    let p2;
+
+    do {
+        p2 = keys[Math.floor(Math.random() * keys.length)];
+    } while (p1 === p2);
+
+    let pattern = patterns[Math.floor(Math.random() * patterns.length)];
+
+    return {
+        sentence: `${capitalize(p1)} ${pattern}`,
+        hint: p2,
+        correct: places[p2]
+    };
+}
+
+function renderQuestion() {
+    const q = questions[currentIndex];
+
+    document.getElementById("sentence").innerHTML =
+        `${q.sentence} <input id="answer"> (${q.hint})`;
+
+    const input = document.getElementById("answer");
+    input.value = "";
+    input.className = "";
+}
+
+function checkAnswer() {
+    const input = document.getElementById("answer");
+    const user = input.value.trim().toLowerCase();
+    const correct = questions[currentIndex].correct;
+
+    input.classList.remove("correct", "incorrect", "revealed");
+
+    if (user === correct) {
+        input.classList.add("correct");
+    } else {
+        input.classList.add("incorrect");
+    }
+}
+
+function revealAnswer() {
+    const input = document.getElementById("answer");
+    input.value = questions[currentIndex].correct;
+
+    input.classList.remove("correct", "incorrect");
+    input.classList.add("revealed");
+}
+
+function nextQuestion() {
+    if (currentIndex === questions.length - 1) {
+        questions.push(generateQuestion());
+    }
+    currentIndex++;
+    renderQuestion();
+}
+
+function prevQuestion() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+    }
+}
+
+function capitalize(word) {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+questions.push(generateQuestion());
+renderQuestion();
+</script>
+
+</body>
+</html>
