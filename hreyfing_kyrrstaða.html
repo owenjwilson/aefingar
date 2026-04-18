@@ -2,13 +2,16 @@
 <html lang="is">
 <head>
 <meta charset="UTF-8" />
-<title>Íslensk föll æfing</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hreyfing eða Kyrrstaða</title>
 
 <style>
   body {
     font-family: Arial, sans-serif;
     max-width: 800px;
     margin: 40px auto;
+    padding: 0 16px;
+    box-sizing: border-box;
     text-align: center;
   }
 
@@ -19,9 +22,9 @@
   }
 
   input {
-    font-size: 20px;
+    font-size: 16px;
     padding: 4px 8px;
-    width: 180px;
+    width: min(180px, 60vw);
     text-align: center;
     border: 2px solid #ccc;
     border-radius: 6px;
@@ -33,47 +36,59 @@
   .wrong { border-color: red; background: #ffd4d4; }
   .revealed { border-color: dodgerblue; background: #d4e6ff; }
 
+  .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 10px 0;
+  }
+
   button {
-    margin: 10px 5px;
-    padding: 10px 15px;
+    padding: 12px 15px;
+    min-height: 44px;
     font-size: 16px;
     cursor: pointer;
   }
-#modeSelector {
-  margin: 15px 0;
-  font-size: 16px;
-  cursor: pointer;
-}
 
-#modeSelector span {
-  padding: 4px 8px;
-}
+  #modeSelector {
+    margin: 15px 0;
+    font-size: 16px;
+    cursor: pointer;
+  }
 
-#modeSelector span.active {
-  text-decoration: underline;
-  font-weight: bold;
-}
-button, .home-btn {
-  padding: 12px 20px;
-  min-height: 44px;
-  font-size: 16px;
-  cursor: pointer;
-}
+  #modeSelector span {
+    padding: 4px 8px;
+  }
 
-.home-btn {
-  display: inline-block;
-  margin-bottom: 20px;
-  text-decoration: none;
-  color: #333;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: #f9f9f9;
-  box-sizing: border-box;
-}
+  #modeSelector span.active {
+    text-decoration: underline;
+    font-weight: bold;
+  }
 
-.home-btn:hover {
-  background-color: #f0f0f0;
-}
+  .home-btn {
+    display: block;
+width: fit-content;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+    min-height: 44px;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #f9f9f9;
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+
+  .home-btn:hover {
+    background-color: #f0f0f0;
+  }
+
+  @media (max-width: 480px) {
+    #sentence { font-size: 18px; }
+    button { font-size: 14px; padding: 10px 12px; }
+  }
 </style>
 </head>
 
@@ -86,10 +101,11 @@ button, .home-btn {
 
 <div id="sentence"></div>
 
-<div>
+<div class="btn-group">
   <button onclick="checkAnswer()">Athuga svar</button>
   <button onclick="revealAnswer()">Sýna svar</button>
 </div>
+
 <div id="modeSelector">
   <span onclick="setMode('article')" id="mode-article">MEÐ GREINI</span>
   |
@@ -97,7 +113,8 @@ button, .home-btn {
   |
   <span onclick="setMode('both')" id="mode-both">BÆÐI</span>
 </div>
-<div>
+
+<div class="btn-group">
   <button onclick="prevQuestion()">← Til baka</button>
   <button onclick="nextQuestion()">Áfram →</button>
 </div>
@@ -127,24 +144,17 @@ const places = [
   { base:"bensínstöð", nomArt:"bensínstöðin", accArt:"bensínstöðin", accNo:"bensínstöð", datArt:"bensínstöðinni", datNo:"bensínstöð", type:"á" }
 ];
 
-// ---------------- SENTENCES ----------------
-
 const accSentences = [
   "Ég fer", "Þú ferð", "Hann fer", "Hún fer", "Hán fer",
   "Við förum", "Þið farið", "Þeir fara", "Þær fara", "Þau fara",
-
   "Ég fór", "Þú fórst", "Hann fór", "Hún fór", "Hán fór",
   "Við fórum", "Þið fóruð", "Þeir fóru", "Þær fóru", "Þau fóru",
-
   "Ég kem", "Þú kemur", "Hann kemur", "Hún kemur", "Hán kemur",
   "Við komum", "Þið komið", "Þeir koma", "Þær koma", "Þau koma",
-
   "Ég labba", "Þú labbar", "Hann labbar", "Hún labbar", "Hán labbar",
   "Við labbum", "Þið labbið", "Þeir labba", "Þær labba", "Þau labba",
-
   "Ég hleyp", "Þú hleypur", "Hann hleypur", "Hún hleypur", "Hán hleypur",
   "Við hlaupum", "Þið hlaupið", "Þeir hlaupa", "Þær hlaupa", "Þau hlaupa",
-
   "Ég keyri", "Þú keyrir", "Hann keyrir", "Hún keyrir", "Hán keyrir",
   "Við keyrum", "Þið keyríð", "Þeir keyra", "Þær keyra", "Þau keyra"
 ];
@@ -152,31 +162,21 @@ const accSentences = [
 const datSentences = [
   "Ég er", "Þú ert", "Hann er", "Hún er", "Hán er",
   "Við erum", "Þið eruð", "Þeir eru", "Þær eru", "Þau eru",
-
   "Ég var", "Þú varst", "Hann var", "Hún var", "Hán var",
   "Við vorum", "Þið voruð", "Þeir voru", "Þær voru", "Þau voru",
-
   "Ég vinn", "Þú vinnur", "Hann vinnur", "Hún vinnur", "Hán vinnur",
   "Við vinnum", "Þið vinnið", "Þeir vinna", "Þær vinna", "Þau vinna",
-
   "Ég sef", "Þú sefur", "Hann sefur", "Hún sefur", "Hán sefur",
   "Við sofum", "Þið sofið", "Þeir sofa", "Þær sofa", "Þau sofa",
-
   "Ég bý", "Þú býrð", "Hann býr", "Hún býr", "Hán býr",
   "Við búum", "Þið búið", "Þeir búa", "Þær búa", "Þau búa",
-
   "Ég drekk kaffi", "Þú drekkur kaffi", "Hann drekkur kaffi", "Hún drekkur kaffi", "Hán drekkur kaffi",
   "Við drekkum kaffi", "Þið drekkið kaffi", "Þeir drekka kaffi", "Þær drekka kaffi", "Þau drekka kaffi"
 ];
 
-// ---------------- LOGIC ----------------
-
 let history = [];
 let index = -1;
 let current = {};
-
-// 🎛 ARTICLE MODE CONTROL
-// "both" | "article" | "noarticle"
 let articleMode = "both";
 setMode("both");
 
@@ -189,29 +189,25 @@ function generateQuestion() {
   const isAcc = Math.random() < 0.5;
   const sentence = isAcc ? random(accSentences) : random(datSentences);
   let showArticle;
-if (articleMode === "both") {
-  showArticle = Math.random() < 0.5;
-} else if (articleMode === "article") {
-  showArticle = true;
-} else {
-  showArticle = false;
-}
-
+  if (articleMode === "both") {
+    showArticle = Math.random() < 0.5;
+  } else if (articleMode === "article") {
+    showArticle = true;
+  } else {
+    showArticle = false;
+  }
   return { place, case: isAcc ? "acc" : "dat", sentence, showArticle };
 }
 
 function render(q) {
   current = q;
-
   const prep = q.place.type;
   const displayWord = q.showArticle ? q.place.nomArt : q.place.base;
-
   document.getElementById("sentence").innerHTML = `
     ${q.sentence} ${prep}
-   <input id="answer" />
+    <input id="answer" />
     (${displayWord})
   `;
-
   resetInput();
 }
 
@@ -221,7 +217,6 @@ function nextQuestion() {
     render(history[index]);
     return;
   }
-
   const q = generateQuestion();
   history.push(q);
   index++;
@@ -237,7 +232,6 @@ function prevQuestion() {
 
 function getCorrectAnswer() {
   const p = current.place;
-
   if (current.case === "acc") {
     return current.showArticle ? p.accArt : p.accNo;
   } else {
@@ -248,9 +242,7 @@ function getCorrectAnswer() {
 function checkAnswer() {
   const input = document.getElementById("answer");
   const val = input.value.trim();
-
   input.classList.remove("correct", "wrong", "revealed");
-
   if (val === getCorrectAnswer()) {
     input.classList.add("correct");
   } else {
@@ -271,16 +263,13 @@ function resetInput() {
   input.classList.remove("correct", "wrong", "revealed");
 }
 
-
-
 nextQuestion();
+
 function setMode(mode) {
   articleMode = mode;
-
   document.getElementById("mode-article").classList.remove("active");
   document.getElementById("mode-none").classList.remove("active");
   document.getElementById("mode-both").classList.remove("active");
-
   if (mode === "article") {
     document.getElementById("mode-article").classList.add("active");
   } else if (mode === "none") {
