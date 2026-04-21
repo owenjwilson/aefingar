@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lýsingarorð og kyn</title>
+
+<style>
+.top-bar {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 15px;
+}
+
+.home-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    color: black;
+    text-decoration: none;
+
+    display: inline-block;
+}
+
+.home-btn:hover {
+    background: #e8e8e8;
+}
+body {
+    font-family: Arial, sans-serif;
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 10px;
+}
+
+.sentence {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+input {
+    padding: 6px;
+    font-size: 16px;
+    width: 140px;
+    text-align: center;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+}
+
+.correct { background-color: #c8f7c5; border-color: green; }
+.incorrect { background-color: #f7c5c5; border-color: red; }
+.revealed { background-color: #c5d8f7; border-color: blue; }
+
+button {
+    padding: 10px 16px;
+    margin: 5px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+<div class="top-bar">
+    <a href="https://owenjwilson.github.io/aefingar/home.html" class="home-btn">← Heim</a>
+</div>
+<h1>Lýsingarorð og kyn</h1>
+
+<div class="sentence" id="sentence"></div>
+
+<div>
+    <button onclick="checkAnswer()">Athuga svar</button>
+    <button onclick="revealAnswer()">Sýna svar</button>
+</div>
+
+<div>
+    <button onclick="prevQuestion()">← Til baka</button>
+    <button onclick="nextQuestion()">Áfram →</button>
+</div>
+
+<script>
+// ================= NOUNS =================
+
+// PEOPLE
+const peopleNouns = [
+    // masculine
+    ..."strákurinn maðurinn verkfræðingurinn söngvarinn bífvélavirkinn nemandinn kennarinn lögreglumaðurinn læknirinn drengurinn vinurinn afinn kokkurinn sjómaðurinn þjónninn presturinn listamaðurinn leikarinn bóndinn bróðirinn faðirinn frændinn langafinn pabbinn sonurinn".split(" ")
+    .map(w => ({word:w, gender:"m"})),
+
+    // feminine
+    ..."konan stulkan stelpan móðirin mamman dóttirin vinkonan amman leikkonan söngkonan listakonan dróttningin prinsessan nunnan ljósmóðirin frænkan langamman lögreglukonan".split(" ")
+    .map(w => ({word:w, gender:"f"})),
+
+    // neuter
+    {word:"barnið", gender:"n"},
+    {word:"fólkið", gender:"n"}
+];
+
+// OBJECT
+const objectNouns = [
+    // masculine
+    ..."ávöxturinn bíllinn boltinn dalurinn diskurinn fossinn glugginn penninn hringurinn bolurinn jakkinn skórinn kastalinn lampinn stóllinn maturinn pokinn sandurinn mosinn garðurinn fiskurinn hundurinn kötturinn hesturinn".split(" ")
+    .map(w => ({word:w, gender:"m"})),
+
+    // feminine
+    ..."bókin byggingin dósin eyjan ferðin flaskan fjaran gatan geymslan hillan höfnin jörðin kistan kirkjan moskan klukkan lyftan nóttin myndin plantan sængin tjörnin tungan stöðin".split(" ")
+    .map(w => ({word:w, gender:"f"})),
+
+    // neuter
+    ..."akkerið herbergið rúmið húsið beltið blómið borðið bréfið eldhúsið fjallið glasið hafið hárið sætið skýið tréð vatnið vínið".split(" ")
+    .map(w => ({word:w, gender:"n"}))
+];
+
+// ================= ADJECTIVES =================
+
+// [m, f, n]
+const peopleAdjectives = [
+    ["hávaxinn","hávaxin","hávaxið"],
+    ["lágvaxinn","lágvaxin","lágvaxið"],
+    ["stór","stór","stórt"],
+    ["lítill","lítil","lítið"],
+    ["mjór","mjó","mjótt"],
+    ["grannur","grönn","grannt"],
+    ["þybbinn","þybbin","þybbið"],
+    ["feitur","feit","feitt"],
+    ["myndarlegur","myndarleg","myndarlegt"],
+    ["fallegur","falleg","fallegt"],
+    ["ljótur","ljót","ljótt"],
+    ["heimskur","heimsk","heimskt"],
+    ["klár","klár","klárt"],
+    ["fyndinn","fyndin","fyndið"],
+    ["alvarlegur","alvarleg","alvarlegt"],
+    ["latur","löt","latt"],
+    ["gamall","gömul","gamalt"],
+    ["dónalegur","dónaleg","dónalegt"],
+    ["leiðinlegur","leiðinleg","leiðinlegt"],
+    ["pirraður","pirruð","pirrað"],
+    ["skipulagður","skipulögð","skipulagt"],
+    ["þolinmóður","þolinmóð","þolinmótt"],
+    ["feiminn","feimin","feimið"],
+    ["glaður","glöð","glatt"],
+    ["ríkur","rík","ríkt"],
+    ["fátækur","fátæk","fátækt"],
+    ["duglegur","dugleg","duglegt"],
+    ["gleyminn","gleymin","gleymið"],
+    ["ungur","ung","ungt"],
+    ["leiður","leið","leitt"],
+    ["reiður","reið","reitt"],
+    ["hamingjusamur","hamingjusöm","hamingjusamt"],
+    ["spenntur","spennt","spennt"],
+    ["þreyttur","þreytt","þreytt"],
+    ["ástfanginn","ástfangin","ástfangið"],
+    ["bláeygður","bláeygð","bláeygt"],
+    ["brúneygður","brúneygð","brúneygt"],
+    ["græneygður","græneygð","græneygt"],
+    ["dökkhærður","dökkhærð","dökkhært"],
+    ["ljóshærður","ljóshærð","ljóshært"],
+    ["brúnhærður","brúnhærð","brúnhært"],
+    ["gráhærður","gráhærð","gráhært"],
+    ["rauðhærður","rauðhærð","rauðhært"],
+    ["svarthærður","svarthærð","svarthært"]
+];
+
+const objectAdjectives = [
+    ["svartur","svört","svart"],
+    ["hvítur","hvít","hvítt"],
+    ["rauður","rauð","rautt"],
+    ["gulur","gul","gult"],
+    ["grænn","græn","grænt"],
+    ["blár","blá","blátt"],
+    ["brúnn","brún","brúnt"],
+    ["bleikur","bleik","bleikt"],
+    ["fjólublár","fjólublá","fjólublátt"],
+    ["grár","grá","grátt"],
+    ["stór","stór","stórt"],
+    ["lítill","lítil","lítið"],
+    ["mjór","mjó","mjótt"],
+    ["breiður","breið","breitt"],
+    ["þykkur","þykk","þykkt"],
+    ["þunnur","þunn","þunnt"],
+    ["mjúkur","mjúk","mjúkt"],
+    ["harður","hörð","hart"],
+    ["sléttur","slétt","slétt"],
+    ["blautur","blaut","blautt"],
+    ["þurr","þurr","þurrt"],
+    ["kaldur","köld","kalt"],
+    ["heitur","heit","heitt"],
+    ["nýr","ný","nýtt"],
+    ["gamall","gömul","gamalt"],
+    ["fallegur","falleg","fallegt"],
+    ["ljótur","ljót","ljótt"],
+    ["dýr","dýr","dýrt"],
+    ["ódýr","ódýr","ódýrt"],
+    ["þungur","þung","þungt"],
+    ["léttur","létt","létt"],
+    ["sterkur","sterk","sterkt"],
+    ["veikur","veik","veikt"],
+    ["hreinn","hrein","hreint"],
+    ["skítugur","skítug","skítugt"],
+    ["skarpur","skörp","skarpt"],
+    ["opinn","opin","opið"],
+    ["lokaður","lokuð","lokað"],
+    ["einfaldur","einföld","einfalt"],
+    ["flókinn","flókin","flókið"],
+    ["gagnlegur","gagnleg","gagnlegt"],
+    ["ónothæfur","ónothæf","ónothæft"]
+];
+
+// ================= LOGIC =================
+
+let questions = [];
+let currentIndex = 0;
+
+function generateQuestion() {
+    const isPerson = Math.random() < 0.5;
+
+    const noun = isPerson
+        ? peopleNouns[Math.floor(Math.random()*peopleNouns.length)]
+        : objectNouns[Math.floor(Math.random()*objectNouns.length)];
+
+    const adj = isPerson
+        ? peopleAdjectives[Math.floor(Math.random()*peopleAdjectives.length)]
+        : objectAdjectives[Math.floor(Math.random()*objectAdjectives.length)];
+
+    const correct =
+        noun.gender === "m" ? adj[0] :
+        noun.gender === "f" ? adj[1] :
+        adj[2];
+
+    return {
+        sentence: `${capitalize(noun.word)} er __________ (${adj[0]})`,
+        correct
+    };
+}
+
+function renderQuestion() {
+    const q = questions[currentIndex];
+    document.getElementById("sentence").innerHTML =
+        q.sentence.replace("__________", '<input id="answer">');
+
+    const input = document.getElementById("answer");
+    input.value = "";
+    input.className = "";
+}
+
+function checkAnswer() {
+    const input = document.getElementById("answer");
+    const user = input.value.trim().toLowerCase();
+    const correct = questions[currentIndex].correct;
+
+    input.classList.remove("correct","incorrect","revealed");
+
+    input.classList.add(user === correct ? "correct" : "incorrect");
+}
+
+function revealAnswer() {
+    const input = document.getElementById("answer");
+    input.value = questions[currentIndex].correct;
+
+    input.classList.remove("correct","incorrect");
+    input.classList.add("revealed");
+}
+
+function nextQuestion() {
+    if (currentIndex === questions.length - 1) {
+        questions.push(generateQuestion());
+    }
+    currentIndex++;
+    renderQuestion();
+}
+
+function prevQuestion() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+    }
+}
+
+function capitalize(word) {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+// init
+questions.push(generateQuestion());
+renderQuestion();
+
+</script>
+
+</body>
+</html>
