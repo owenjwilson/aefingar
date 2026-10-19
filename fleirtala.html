@@ -103,6 +103,27 @@
     color: #555;
   }
 
+  /* Hints (warnings) */
+  .hint {
+    margin: 0 0 15px 0;
+    padding: 6px 10px;
+    background: #fdecea;
+    border-left: 4px solid #d32f2f;
+    color: #b71c1c;
+    font-size: 14px;
+  }
+
+  .hint:empty { display: none; }
+
+  .btn-hint {
+    margin-bottom: 15px;
+  }
+
+  .btn-hint.on {
+    background: #fdecea;
+    border-color: #d32f2f;
+  }
+
   @media (max-width: 480px) {
     table, thead, tbody, th, td, tr {
       display: block;
@@ -136,6 +157,7 @@
     <h1>Fleirtala</h1>
     <p>án greinis og með greini</p>
   </header>
+  <button id="hint-toggle" class="btn-hint" onclick="toggleHints()">Sýna vísbendingar</button>
   <div id="app"></div>
 </div>
 
@@ -156,32 +178,43 @@
 
   If a word has more than one accepted form, separate them with " / "
   (e.g. tho_an: "form1 / form2"). Any of them will be marked correct.
+
+  HINTS (optional)
+  ----------------
+  To make a warning appear for a word (when "Sýna vísbendingar" is on),
+  add a hint field at the end of its entry:
+    hint: "ir"        -> "tekur -ir í nefnifalli fleirtölu"
+    hint: "irr"       -> "óregluleg beyging"
+    hint: "ir, irr"   -> both warnings
+  Words without a hint field never show a warning.
+  Example:
+    { is: "drengur", gender: "m", en: "boy", ..., thgf_med: "drengjunum", hint: "ir" },
 */
 const allWords = [
   // ---- 1. People and family ----
-  { is: "maður", gender: "m", en: "man, person", nef_an: "menn", nef_med: "mennirnir", tho_an: "menn", tho_med: "mennina", thgf_an: "mönnum", thgf_med: "mönnunum" },
+  { is: "maður", gender: "m", en: "man, person", nef_an: "menn", nef_med: "mennirnir", tho_an: "menn", tho_med: "mennina", thgf_an: "mönnum", thgf_med: "mönnunum", hint: "irr" },
   { is: "kona", gender: "f", en: "woman", nef_an: "konur", nef_med: "konurnar", tho_an: "konur", tho_med: "konurnar", thgf_an: "konum", thgf_med: "konunum" },
   { is: "barn", gender: "n", en: "child", nef_an: "börn", nef_med: "börnin", tho_an: "börn", tho_med: "börnin", thgf_an: "börnum", thgf_med: "börnunum" },
-  { is: "drengur", gender: "m", en: "boy", nef_an: "drengir", nef_med: "drengirnir", tho_an: "drengi", tho_med: "drengina", thgf_an: "drengjum", thgf_med: "drengjunum" },
+  { is: "drengur", gender: "m", en: "boy", nef_an: "drengir", nef_med: "drengirnir", tho_an: "drengi", tho_med: "drengina", thgf_an: "drengjum", thgf_med: "drengjunum", hint: "ir" },
   { is: "stelpa", gender: "f", en: "girl", nef_an: "stelpur", nef_med: "stelpurnar", tho_an: "stelpur", tho_med: "stelpurnar", thgf_an: "stelpum", thgf_med: "stelpunum" },
   { is: "strákur", gender: "m", en: "boy", nef_an: "strákar", nef_med: "strákarnir", tho_an: "stráka", tho_med: "strákana", thgf_an: "strákum", thgf_med: "strákunum" },
   { is: "stúlka", gender: "f", en: "girl", nef_an: "stúlkur", nef_med: "stúlkurnar", tho_an: "stúlkur", tho_med: "stúlkurnar", thgf_an: "stúlkum", thgf_med: "stúlkunum" },
-  { is: "faðir", gender: "m", en: "father", nef_an: "feður", nef_med: "feðurnir", tho_an: "feður", tho_med: "feðurnar", thgf_an: "feðrum", thgf_med: "feðrunum" },
-  { is: "móðir", gender: "f", en: "mother", nef_an: "mæður", nef_med: "mæðurnar", tho_an: "mæður", tho_med: "mæðurnar", thgf_an: "mæðrum", thgf_med: "mæðrunum" },
-  { is: "sonur", gender: "m", en: "son", nef_an: "synir", nef_med: "synirnir", tho_an: "syni", tho_med: "synina", thgf_an: "sonum", thgf_med: "sonunum" },
-  { is: "dóttir", gender: "f", en: "daughter", nef_an: "dætur", nef_med: "dæturnar", tho_an: "dætur", tho_med: "dæturnar", thgf_an: "dætrum", thgf_med: "dætrunum" },
-  { is: "bróðir", gender: "m", en: "brother", nef_an: "bræður", nef_med: "bræðurnir", tho_an: "bræður", tho_med: "bræðurna", thgf_an: "bræðrum", thgf_med: "bræðrunum" },
-  { is: "systir", gender: "f", en: "sister", nef_an: "systur", nef_med: "systurnar", tho_an: "systur", tho_med: "systurnar", thgf_an: "systrum", thgf_med: "systrunum" },
+  { is: "faðir", gender: "m", en: "father", nef_an: "feður", nef_med: "feðurnir", tho_an: "feður", tho_med: "feðurnar", thgf_an: "feðrum", thgf_med: "feðrunum", hint: "irr" },
+  { is: "móðir", gender: "f", en: "mother", nef_an: "mæður", nef_med: "mæðurnar", tho_an: "mæður", tho_med: "mæðurnar", thgf_an: "mæðrum", thgf_med: "mæðrunum", hint: "irr" },
+  { is: "sonur", gender: "m", en: "son", nef_an: "synir", nef_med: "synirnir", tho_an: "syni", tho_med: "synina", thgf_an: "sonum", thgf_med: "sonunum", hint: "irr" },
+  { is: "dóttir", gender: "f", en: "daughter", nef_an: "dætur", nef_med: "dæturnar", tho_an: "dætur", tho_med: "dæturnar", thgf_an: "dætrum", thgf_med: "dætrunum", hint: "irr" },
+  { is: "bróðir", gender: "m", en: "brother", nef_an: "bræður", nef_med: "bræðurnir", tho_an: "bræður", tho_med: "bræðurna", thgf_an: "bræðrum", thgf_med: "bræðrunum", hint: "irr" },
+  { is: "systir", gender: "f", en: "sister", nef_an: "systur", nef_med: "systurnar", tho_an: "systur", tho_med: "systurnar", thgf_an: "systrum", thgf_med: "systrunum", hint: "irr" },
   { is: "afi", gender: "m", en: "grandfather", nef_an: "afar", nef_med: "afarnir", tho_an: "afa", tho_med: "afana", thgf_an: "öfum", thgf_med: "öfunum" },
   { is: "amma", gender: "f", en: "grandmother", nef_an: "ömmur", nef_med: "ömmurnar", tho_an: "ömmur", tho_med: "ömmurnar", thgf_an: "ömmum", thgf_med: "ömmunum" },
   { is: "fjölskylda", gender: "f", en: "family", nef_an: "fjölskyldur", nef_med: "fjölskyldurnar", tho_an: "fjölskyldur", tho_med: "fjölskyldurnar", thgf_an: "fjölskyldum", thgf_med: "fjölskyldunum" },
-  { is: "vinur", gender: "m", en: "male friend", nef_an: "vinir", nef_med: "vinirnir", tho_an: "vini", tho_med: "vinina", thgf_an: "vinum", thgf_med: "vinunum" },
+  { is: "vinur", gender: "m", en: "male friend", nef_an: "vinir", nef_med: "vinirnir", tho_an: "vini", tho_med: "vinina", thgf_an: "vinum", thgf_med: "vinunum", hint: "ir" },
   { is: "vinkona", gender: "f", en: "female friend", nef_an: "vinkonur", nef_med: "vinkonurnar", tho_an: "vinkonur", tho_med: "vinkonurnar", thgf_an: "vinkonum", thgf_med: "vinkonunum" },
   { is: "kennari", gender: "m", en: "teacher", nef_an: "kennarar", nef_med: "kennararnir", tho_an: "kennara", tho_med: "kennarana", thgf_an: "kennurum", thgf_med: "kennurunum" },
   { is: "nemandi", gender: "m", en: "student", nef_an: "nemendur", nef_med: "nemendurnir", tho_an: "nemendur", tho_med: "nemendurna", thgf_an: "nemendum", thgf_med: "nemendunum" },
   { is: "læknir", gender: "m", en: "doctor", nef_an: "læknar", nef_med: "læknarnir", tho_an: "lækna", tho_med: "læknana", thgf_an: "læknum", thgf_med: "læknunum" },
-  { is: "hjúkrunarfræðingur", gender: "m", en: "nurse", nef_an: "hjúkrunarfræðingar", nef_med: "hjúkrunarfræðingarnir", tho_an: "hjúkrunarfræðinga", tho_med: "hjúkrunarfræðingana", thgf_an: "hjúkrunarfræðingum", thgf_med: "hjúkrinarfræðingunum" },
-  { is: "lögregluþjónn", gender: "m", en: "police officer", nef_an: "lögregluþjónar", nef_med: "lögregluþjónar", tho_an: "lögregluþjóna", tho_med: "lögregluþjónana", thgf_an: "lögregluþjónum", thgf_med: "lögregluþjónunum" },
+  { is: "hjúkrunarfræðingur", gender: "m", en: "nurse", nef_an: "hjúkrunarfræðingar", nef_med: "hjúkrunarfræðingarnir", tho_an: "hjúkrunarfræðinga", tho_med: "hjúkrunarfræðingana", thgf_an: "hjúkrunarfræðingum", thgf_med: "hjúkrunarfræðingunum" },
+  { is: "lögregluþjónn", gender: "m", en: "police officer", nef_an: "lögregluþjónar", nef_med: "lögregluþjónarnir", tho_an: "lögregluþjóna", tho_med: "lögregluþjónana", thgf_an: "lögregluþjónum", thgf_med: "lögregluþjónunum" },
   { is: "kokkur", gender: "m", en: "cook", nef_an: "kokkar", nef_med: "kokkarnir", tho_an: "kokka", tho_med: "kokkana", thgf_an: "kokkum", thgf_med: "kokkunum" },
   { is: "nágranni", gender: "m", en: "neighbour", nef_an: "nágrannar", nef_med: "nágrannarnir", tho_an: "nágranna", tho_med: "nágrannana", thgf_an: "nágrönnum", thgf_med: "nágrönnunum" },
 
@@ -204,7 +237,7 @@ const allWords = [
   { is: "sími", gender: "m", en: "phone", nef_an: "símar", nef_med: "símarnir", tho_an: "síma", tho_med: "símana", thgf_an: "símum", thgf_med: "símunum" },
   { is: "tölva", gender: "f", en: "computer", nef_an: "tölvur", nef_med: "tölvurnar", tho_an: "tölvur", tho_med: "tölvurnar", thgf_an: "tölvum", thgf_med: "tölvunum" },
   { is: "sjónvarp", gender: "n", en: "television", nef_an: "sjónvörp", nef_med: "sjónvörpin", tho_an: "sjónvörp", tho_med: "sjónvörpin", thgf_an: "sjónvörpum", thgf_med: "sjónvörpunum" },
-  { is: "bók", gender: "f", en: "book", nef_an: "bækur", nef_med: "bækurnar", tho_an: "bækur", tho_med: "bækurnar", thgf_an: "bókum", thgf_med: "bókunum" },
+  { is: "bók", gender: "f", en: "book", nef_an: "bækur", nef_med: "bækurnar", tho_an: "bækur", tho_med: "bækurnar", thgf_an: "bókum", thgf_med: "bókunum", hint: "irr" },
   { is: "blað", gender: "n", en: "paper, newspaper", nef_an: "blöð", nef_med: "blöðin", tho_an: "blöð", tho_med: "blöðin", thgf_an: "blöðum", thgf_med: "blöðunum" },
   { is: "penni", gender: "m", en: "pen", nef_an: "pennar", nef_med: "pennarnir", tho_an: "penna", tho_med: "pennana", thgf_an: "pennum", thgf_med: "pennunum" },
   { is: "taska", gender: "f", en: "bag", nef_an: "töskur", nef_med: "töskurnar", tho_an: "töskur", tho_med: "töskurnar", thgf_an: "töskum", thgf_med: "töskunum" },
@@ -226,7 +259,7 @@ const allWords = [
   { is: "appelsína", gender: "f", en: "orange", nef_an: "appelsínur", nef_med: "appelsínurnar", tho_an: "appelsínur", tho_med: "appelsínurnar", thgf_an: "appelsínum", thgf_med: "appelsínunum" },
   { is: "pera", gender: "f", en: "pear", nef_an: "perur", nef_med: "perurnar", tho_an: "perur", tho_med: "perurnar", thgf_an: "perum", thgf_med: "perunum" },
   { is: "kartafla", gender: "f", en: "potato", nef_an: "kartöflur", nef_med: "kartöflurnar", tho_an: "kartöflur", tho_med: "kartöflurnar", thgf_an: "kartöflum", thgf_med: "kartöflunum" },
-  { is: "gulrót", gender: "f", en: "carrot", nef_an: "gulrætur", nef_med: "gulræturnar", tho_an: "gulrætur", tho_med: "gulræturnar", thgf_an: "gulrótum", thgf_med: "gulrótunum" },
+  { is: "gulrót", gender: "f", en: "carrot", nef_an: "gulrætur", nef_med: "gulræturnar", tho_an: "gulrætur", tho_med: "gulræturnar", thgf_an: "gulrótum", thgf_med: "gulrótunum", hint: "irr" },
   { is: "tómatur", gender: "m", en: "tomato", nef_an: "tómatar", nef_med: "tómatarnir", tho_an: "tómata", tho_med: "tómatana", thgf_an: "tómötum", thgf_med: "tómötunum" },
   { is: "agúrka", gender: "f", en: "cucumber", nef_an: "agúrkur", nef_med: "agúrkurnar", tho_an: "agúrkur", tho_med: "agúrkurnar", thgf_an: "agúrkum", thgf_med: "agúrkunum" },
   { is: "laukur", gender: "m", en: "onion", nef_an: "laukar", nef_med: "laukarnir", tho_an: "lauka", tho_med: "laukana", thgf_an: "laukum", thgf_med: "laukunum" },
@@ -242,7 +275,7 @@ const allWords = [
   // ---- 4. School, work and learning ----
   { is: "skóli", gender: "m", en: "school", nef_an: "skólar", nef_med: "skólarnir", tho_an: "skóla", tho_med: "skólana", thgf_an: "skólum", thgf_med: "skólunum" },
   { is: "háskóli", gender: "m", en: "university", nef_an: "háskólar", nef_med: "háskólarnir", tho_an: "háskóla", tho_med: "háskólana", thgf_an: "háskólum", thgf_med: "háskólunum" },
-  { is: "bekkur", gender: "m", en: "class", nef_an: "bekkir", nef_med: "bekkirnir", tho_an: "bekki", tho_med: "bekkina", thgf_an: "bekkum", thgf_med: "bekkunum" },
+  { is: "bekkur", gender: "m", en: "class", nef_an: "bekkir", nef_med: "bekkirnir", tho_an: "bekki", tho_med: "bekkina", thgf_an: "bekkum", thgf_med: "bekkunum", hint: "ir" },
   { is: "kennslustofa", gender: "f", en: "classroom", nef_an: "kennslustofur", nef_med: "kennslustofurnar", tho_an: "kennslustofur", tho_med: "kennslustofurnar", thgf_an: "kennslustofum", thgf_med: "kennslustofunum" },
   { is: "bókasafn", gender: "n", en: "library", nef_an: "bókasöfn", nef_med: "bókasöfnin", tho_an: "bókasöfn", tho_med: "bókasöfnin", thgf_an: "bókasöfnum", thgf_med: "bókasöfnunum" },
   { is: "orð", gender: "n", en: "word", nef_an: "orð", nef_med: "orðin", tho_an: "orð", tho_med: "orðin", thgf_an: "orðum", thgf_med: "orðunum" },
@@ -252,15 +285,15 @@ const allWords = [
   { is: "tungumál", gender: "n", en: "language", nef_an: "tungumál", nef_med: "tungumálin", tho_an: "tungumál", tho_med: "tungumálin", thgf_an: "tungumálum", thgf_med: "tungumálunum" },
   { is: "íslenska", gender: "f", en: "Icelandic language", nef_an: "", nef_med: "", tho_an: "", tho_med: "", thgf_an: "", thgf_med: "" },
   { is: "enska", gender: "f", en: "English language", nef_an: "", nef_med: "", tho_an: "", tho_med: "", thgf_an: "", thgf_med: "" },
-  { is: "verkefni", gender: "n", en: "assignment", nef_an: "verkefni", nef_med: "verkefnin", tho_an: "verkefni", tho_med: "verkefnin", thgf_an: "verkefnum", thgf_med: "vefkefnunum" },
+  { is: "verkefni", gender: "n", en: "assignment", nef_an: "verkefni", nef_med: "verkefnin", tho_an: "verkefni", tho_med: "verkefnin", thgf_an: "verkefnum", thgf_med: "verkefnunum" },
   { is: "próf", gender: "n", en: "test, exam", nef_an: "próf", nef_med: "prófin", tho_an: "próf", tho_med: "prófin", thgf_an: "prófum", thgf_med: "prófunum" },
-  { is: "kennslubók", gender: "f", en: "textbook", nef_an: "kennslubækur", nef_med: "kennslubækurnar", tho_an: "kennslubækur", tho_med: "kennslubækurnar", thgf_an: "kennslubókum", thgf_med: "kennslubókunum" },
+  { is: "kennslubók", gender: "f", en: "textbook", nef_an: "kennslubækur", nef_med: "kennslubækurnar", tho_an: "kennslubækur", tho_med: "kennslubækurnar", thgf_an: "kennslubókum", thgf_med: "kennslubókunum", hint: "irr" },
   { is: "blýantur", gender: "m", en: "pencil", nef_an: "blýantar", nef_med: "blýantarnir", tho_an: "blýanta", tho_med: "blýantana", thgf_an: "blýöntum", thgf_med: "blýöntunum" },
   { is: "strokleður", gender: "n", en: "eraser", nef_an: "strokleður", nef_med: "strokleðrin", tho_an: "strokleður", tho_med: "strokleðrin", thgf_an: "strokleðrum", thgf_med: "strokleðrunum" },
   { is: "regla", gender: "f", en: "ruler, rule", nef_an: "reglur", nef_med: "reglurnar", tho_an: "reglur", tho_med: "reglurnar", thgf_an: "reglum", thgf_med: "reglunum" },
-  { is: "vinnustaður", gender: "m", en: "workplace", nef_an: "vinnustaðir", nef_med: "vinnustaðirnir", tho_an: "vinnustaði", tho_med: "vinnustaðina", thgf_an: "vinnustöðum", thgf_med: "vinnustöðunum" },
+  { is: "vinnustaður", gender: "m", en: "workplace", nef_an: "vinnustaðir", nef_med: "vinnustaðirnir", tho_an: "vinnustaði", tho_med: "vinnustaðina", thgf_an: "vinnustöðum", thgf_med: "vinnustöðunum", hint: "ir" },
   { is: "skrifstofa", gender: "f", en: "office", nef_an: "skrifstofur", nef_med: "skrifstofurnar", tho_an: "skrifstofur", tho_med: "skrifstofurnar", thgf_an: "skrifstofum", thgf_med: "skrifstofunum" },
-  { is: "fundur", gender: "m", en: "meeting", nef_an: "fundir", nef_med: "fundirnir", tho_an: "fundi", tho_med: "fundina", thgf_an: "fundum", thgf_med: "fundunum" },
+  { is: "fundur", gender: "m", en: "meeting", nef_an: "fundir", nef_med: "fundirnir", tho_an: "fundi", tho_med: "fundina", thgf_an: "fundum", thgf_med: "fundunum", hint: "ir" },
   { is: "vinna", gender: "f", en: "work", nef_an: "", nef_med: "", tho_an: "", tho_med: "", thgf_an: "", thgf_med: "" },
   { is: "starf", gender: "n", en: "job", nef_an: "störf", nef_med: "störfin", tho_an: "störf", tho_med: "störfin", thgf_an: "störfum", thgf_med: "störfunum" },
   { is: "peningur", gender: "m", en: "money", nef_an: "peningar", nef_med: "peningarnir", tho_an: "peninga", tho_med: "peningana", thgf_an: "peningum", thgf_med: "peningunum" },
@@ -386,6 +419,36 @@ for (let i = words.length - 1; i > 0; i--) {
 
 let idx = 0;
 
+// ---- Hints ----
+const hintMessages = {
+  ir:  "tekur -ir í nefnifalli fleirtölu",
+  irr: "óregluleg beyging"
+};
+
+let showHints = false;
+
+function toggleHints() {
+  showHints = !showHints;
+  document.getElementById("hint-toggle").classList.toggle("on", showHints);
+  updateHint();
+}
+
+function updateHint() {
+  const box = document.getElementById("hint-box");
+  if (!box) return;
+  const w = words[idx];
+  if (!showHints || !w.hint) {
+    box.innerHTML = "";
+    return;
+  }
+  box.innerHTML = w.hint
+    .split(",")
+    .map(code => hintMessages[code.trim()])
+    .filter(Boolean)
+    .map(msg => `<div>⚠ ${msg}</div>`)
+    .join("");
+}
+
 const genderLabel = { m: "kk", f: "kvk", n: "hvk" };
 const genderClass = { m: "kk", f: "kvk", n: "hvk" };
 
@@ -405,6 +468,7 @@ function render() {
         <span class="gender-badge ${genderClass[w.gender]}">${genderLabel[w.gender]}</span>
       </div>
       <div class="word-en">${w.en}</div>
+      <div class="hint" id="hint-box"></div>
 
       <table>
         <thead>
@@ -445,6 +509,7 @@ function render() {
 
   document.getElementById("app").innerHTML = html;
   document.getElementById("nef_an").focus();
+  updateHint();
 }
 
 // Accepts several correct forms separated by " / "
