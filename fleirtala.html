@@ -430,7 +430,9 @@ let showHints = false;
 
 function toggleHints() {
   showHints = !showHints;
-  document.getElementById("hint-toggle").classList.toggle("on", showHints);
+  const btn = document.getElementById("hint-toggle");
+  btn.classList.toggle("on", showHints);
+  btn.textContent = showHints ? "Fela vísbendingar" : "Sýna vísbendingar";
   updateHint();
 }
 
