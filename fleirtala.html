@@ -258,7 +258,7 @@ const allWords = [
   { is: "banani", gender: "m", en: "banana", nef_an: "bananar", nef_med: "bananarnir", tho_an: "banana", tho_med: "bananana", thgf_an: "banönum / bönunum", thgf_med: "banönunum / bönununum" },
   { is: "appelsína", gender: "f", en: "orange", nef_an: "appelsínur", nef_med: "appelsínurnar", tho_an: "appelsínur", tho_med: "appelsínurnar", thgf_an: "appelsínum", thgf_med: "appelsínunum" },
   { is: "pera", gender: "f", en: "pear", nef_an: "perur", nef_med: "perurnar", tho_an: "perur", tho_med: "perurnar", thgf_an: "perum", thgf_med: "perunum" },
-  { is: "kartafla", gender: "f", en: "potato", nef_an: "kartöflur", nef_med: "kartöflurnar", tho_an: "kartöflur", tho_med: "kartöflurnar", thgf_an: "kartöflum", thgf_med: "kartöflunum" },
+  { is: "kartafla", gender: "f", en: "potato", nef_an: "kartöflur", nef_med: "kartöflurnar", tho_an: "kartöflur", tho_med: "kartöflurnar", thgf_an: "kartöflum", thgf_med: "kartöflunum", hint: "tok"  },
   { is: "gulrót", gender: "f", en: "carrot", nef_an: "gulrætur", nef_med: "gulræturnar", tho_an: "gulrætur", tho_med: "gulræturnar", thgf_an: "gulrótum", thgf_med: "gulrótunum", hint: "irr" },
   { is: "tómatur", gender: "m", en: "tomato", nef_an: "tómatar", nef_med: "tómatarnir", tho_an: "tómata", tho_med: "tómatana", thgf_an: "tómötum", thgf_med: "tómötunum" },
   { is: "agúrka", gender: "f", en: "cucumber", nef_an: "agúrkur", nef_med: "agúrkurnar", tho_an: "agúrkur", tho_med: "agúrkurnar", thgf_an: "agúrkum", thgf_med: "agúrkunum" },
@@ -268,7 +268,7 @@ const allWords = [
   { is: "kjöt", gender: "n", en: "meat", nef_an: "kjöt", nef_med: "kjötin", tho_an: "kjöt", tho_med: "kjötin", thgf_an: "kjötum", thgf_med: "kjötunum" },
   { is: "egg", gender: "n", en: "egg", nef_an: "egg", nef_med: "eggin", tho_an: "egg", tho_med: "eggin", thgf_an: "eggjum", thgf_med: "eggjunum" },
   { is: "súpa", gender: "f", en: "soup", nef_an: "súpur", nef_med: "súpurnar", tho_an: "súpur", tho_med: "súpurnar", thgf_an: "súpum", thgf_med: "súpunum" },
-  { is: "salat", gender: "n", en: "salad", nef_an: "salöt", nef_med: "salötin", tho_an: "salöt", tho_med: "salötin", thgf_an: "salötum", thgf_med: "salötunum" },
+  { is: "salat", gender: "n", en: "salad", nef_an: "salöt", nef_med: "salötin", tho_an: "salöt", tho_med: "salötin", thgf_an: "salötum", thgf_med: "salötunum", hint: "tok"  },
   { is: "kaka", gender: "f", en: "cake", nef_an: "kökur", nef_med: "kökurnar", tho_an: "kökur", tho_med: "kökurnar", thgf_an: "kökum", thgf_med: "kökunum" },
   { is: "ís", gender: "m", en: "ice cream", nef_an: "ísar", nef_med: "ísarnir", tho_an: "ísa", tho_med: "ísana", thgf_an: "ísum", thgf_med: "ísunum" },
 
@@ -423,6 +423,7 @@ let idx = 0;
 const hintMessages = {
   ir:  "tekur -ir í nefnifalli fleirtölu",
   irr: "óregluleg beyging"
+  tok: "tökuorð – fyrsti „a“ breytist ekki í „ö“"
 };
 
 let showHints = false;
